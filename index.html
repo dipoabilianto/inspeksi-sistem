@@ -1,0 +1,805 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir Inspeksi & Taksiran Harga HP Second</title>
+    <!-- Menggunakan Tailwind CSS v4 terbaru -->
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        /* Gaya khusus saat halaman dicetak (Print Mode) */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                padding: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .print-container {
+                box-shadow: none !important;
+                border: none !important;
+                max-width: 100% !important;
+                padding: 0 !important;
+                background-color: #ffffff !important;
+                color: #000000 !important;
+            }
+            input[type="text"], select, textarea {
+                border-bottom: 1px dashed #000000 !important;
+                border-top: none !important;
+                border-left: none !important;
+                border-right: none !important;
+                border-radius: 0 !important;
+                padding: 2px !important;
+                background: transparent !important;
+                color: #000000 !important;
+                appearance: none;
+            }
+            input[type="checkbox"] {
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans min-h-screen p-4 md:p-8 flex flex-col items-center justify-start gap-4">
+
+    <!-- ========================================== -->
+    <!-- PANEL LOGIN SISTEM (DITAMPILKAN AWAL)     -->
+    <!-- ========================================== -->
+    <div id="panelLogin" class="no-print w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-slate-200/80 my-auto transition-all">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-sm border border-blue-100">
+                🔐
+            </div>
+            <h2 class="text-xl font-black text-slate-800 uppercase mt-4 tracking-tight">Login Pro-Inspect</h2>
+            <p class="text-xs text-slate-500 mt-1">Silakan masuk menggunakan akun hak akses Anda</p>
+        </div>
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Pilih Pengguna / Role</label>
+                <select id="loginRole" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-700 bg-slate-50 font-medium cursor-pointer">
+                    <option value="Teknisi">Teknisi / Checker</option>
+                    <option value="Admin">Admin Toko</option>
+                    <option value="Superuser">Superuser (Owner)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Kata Sandi (Password)</label>
+                <input type="password" id="loginPassword" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-900 placeholder-slate-300" placeholder="••••••••" onkeydown="if(event.key === 'Enter') prosesLogin()">
+            </div>
+            <button onclick="prosesLogin()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-sm transition-all shadow-md shadow-blue-500/10 cursor-pointer active:scale-[0.98]">
+                Masuk ke Sistem
+            </button>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- KONTEN APLIKASI (DISEMBUNYIKAN SEBELUM LOGIN) -->
+    <!-- ========================================== -->
+    <div id="kontenAplikasi" class="hidden w-full flex flex-col items-center gap-4">
+        
+        <!-- PANEL KONTROL HAK AKSES OPERASIONAL -->
+        <div class="no-print w-full max-w-4xl flex flex-col sm:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-md border border-slate-200 gap-4">
+            <div class="flex items-center gap-3 w-full sm:w-auto">
+                <span class="text-sm font-bold text-slate-700 block whitespace-nowrap">👤 Sesi Aktif:</span>
+                <span id="badgeRole" class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200">Mode: Teknisi</span>
+                
+                <!-- Fitur Manajemen Password Hanya Muncul untuk Superuser -->
+                <button id="btnKelolaPassword" onclick="bukaModalPassword()" class="hidden bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold px-3 py-1 rounded-lg text-xs transition cursor-pointer">
+                    🔑 Set Password User
+                </button>
+            </div>
+            <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+                <button onclick="bukaModalDatabase()" class="w-full sm:w-auto bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-4 py-2 rounded-lg text-xs cursor-pointer flex items-center justify-center gap-1.5 transition shadow shadow-indigo-500/10">
+                    🗄️ Riwayat Database
+                </button>
+                <button onclick="prosesLogout()" class="w-full sm:w-auto bg-red-50 border border-red-200 hover:bg-red-100 text-red-600 font-bold px-4 py-2 rounded-lg text-xs cursor-pointer flex items-center justify-center gap-1.5 transition-all">
+                    🚪 Keluar
+                </button>
+            </div>
+        </div>
+
+        <!-- WADAH UTAMA FORMULIR INSPEC -->
+        <div class="print-container bg-white p-6 md:p-8 rounded-2xl shadow-xl w-full max-w-4xl border border-slate-200 text-slate-800">
+            
+            <!-- HEADER & IDENTITAS KONSUMEN -->
+            <div class="border-b border-slate-200 pb-6 mb-6">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 bg-gradient-to-r from-blue-50 to-transparent p-4 rounded-xl border-l-4 border-blue-600 print:bg-none print:border-none print:p-0 print:mb-4">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-blue-600 flex items-center justify-center text-white text-2xl shadow-md no-print shadow-blue-500/20">
+                            📱
+                        </div>
+                        <div>
+                            <h1 class="text-xl md:text-2xl font-black text-slate-900 tracking-wide uppercase leading-tight">Formulir Pengecekan Handphone</h1>
+                            <p class="text-xs text-blue-600 font-semibold no-print mt-0.5 flex items-center gap-1">
+                                <span>✨</span> Sistem Taksiran & Inspeksi Harga Toko Digital
+                            </p>
+                        </div>
+                    </div>
+                    <div class="hidden print:block border-2 border-slate-800 text-slate-800 font-bold text-xs uppercase px-3 py-1.5 rounded tracking-widest">
+                        Nota Pengecekan Original
+                    </div>
+                </div>
+                
+                <div class="w-full max-w-md space-y-2.5 text-sm p-4 rounded-xl border border-slate-200 bg-slate-50/50 print:bg-transparent print:border-none print:p-0">
+                    <div class="flex items-center">
+                        <span class="w-36 font-bold tracking-wide text-slate-600">Nama Konsumen</span>
+                        <span class="mr-3 text-slate-400">:</span>
+                        <input type="text" id="namaKonsumen" class="flex-1 border border-slate-300 bg-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 font-medium" placeholder="Masukkan nama lengkap">
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-36 font-bold tracking-wide text-slate-600">NIK (KTP)</span>
+                        <span class="mr-3 text-slate-400">:</span>
+                        <input type="text" id="nikKonsumen" class="flex-1 border border-slate-300 bg-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 font-medium" placeholder="16 digit nomor KTP">
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-36 font-bold tracking-wide text-slate-600">No. Handphone</span>
+                        <span class="mr-3 text-slate-400">:</span>
+                        <input type="text" id="noHpKonsumen" class="flex-1 border border-slate-300 bg-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 font-medium" placeholder="Contoh: 0812xxxx">
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-36 font-bold tracking-wide text-slate-600">Merek Handphone</span>
+                        <span class="mr-3 text-slate-400">:</span>
+                        <select id="merekHp" class="flex-1 border border-slate-300 bg-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all cursor-pointer text-slate-800 font-medium">
+                            <option value="">-- Pilih Merek --</option>
+                            <option value="Apple">Apple</option>
+                            <option value="Asus">Asus</option>
+                            <option value="Infinix">Infinix</option>
+                            <option value="Oppo">Oppo</option>
+                            <option value="Redmi">Redmi</option>
+                            <option value="Samsung">Samsung</option>
+                            <option value="Vivo">Vivo</option>
+                            <option value="Xiaomi">Xiaomi</option>
+                        </select>
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-36 font-bold tracking-wide text-slate-600">Tipe Handphone</span>
+                        <span class="mr-3 text-gray-400">:</span>
+                        <input type="text" id="tipeHp" class="flex-1 border border-slate-300 bg-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 font-medium" placeholder="Contoh: iPhone 13 Pro">
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-36 font-bold tracking-wide text-slate-600">IMEI 1</span>
+                        <span class="mr-3 text-slate-400">:</span>
+                        <input type="text" id="imei1" class="flex-1 border border-slate-300 bg-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 font-mono" placeholder="Masukkan IMEI utama">
+                    </div>
+                    <div class="flex items-center">
+                        <span class="w-36 font-bold tracking-wide text-slate-600">IMEI 2</span>
+                        <span class="mr-3 text-slate-400">:</span>
+                        <input type="text" id="imei2" class="flex-1 border border-slate-300 bg-white rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-slate-900 font-mono" placeholder="Masukkan IMEI sekunder (jika ada)">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- INPUT HARGA DASAR & REFERENSI -->
+            <div class="no-print bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div class="flex-1 flex flex-col sm:flex-row items-start sm:items-end gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Harga Pasaran Batasan Mulus (Rp)</label>
+                        <input type="text" id="hargaDasarTeks" class="w-full sm:w-64 p-2.5 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 font-extrabold text-blue-700 bg-white text-lg shadow-inner" placeholder="Dalam Rupiah" oninput="formatDanHitung(this)">
+                    </div>
+                    <button type="button" onclick="bukaReferensiHarga()" class="w-full sm:w-auto bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold px-4 py-3.5 rounded-xl shadow-md cursor-pointer transition-all duration-150 flex items-center justify-center gap-1 active:scale-95">
+                        🔍 Cek Harga Bekas
+                    </button>
+                </div>
+                <div class="text-left md:text-left md:max-w-xs border-l-2 border-blue-500 pl-3">
+                    <span class="text-xs text-blue-700 block font-bold">💡 Tips Pengecekan:</span>
+                    <span class="text-xs text-slate-500 block leading-tight mt-0.5">Gunakan tombol cek harga untuk riset pasaran sebelum menginput nominal harga acuan.</span>
+                </div>
+            </div>
+
+            <!-- TABEL EVALUASI KOMPONEN -->
+            <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-sm">
+                <table class="w-full text-left text-sm border-collapse">
+                    <thead>
+                        <tr class="bg-slate-100 border-b border-slate-200 text-slate-700 font-bold text-xs uppercase tracking-wider">
+                            <th class="py-3 px-3 text-center w-12">No</th>
+                            <th class="py-3 px-4 w-1/4">Komponen Alat / Fisik</th>
+                            <th class="py-3 px-4 bg-emerald-50 text-emerald-800 border-x border-slate-200/60">Kondisi 1 (Baik)</th>
+                            <th class="py-3 px-4 bg-amber-50 text-amber-800 border-r border-slate-200/60">Kondisi 2 (Minus Ringan)</th>
+                            <th class="py-3 px-4 bg-rose-50 text-rose-800">Kondisi 3 (Minus Berat)</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-200 text-slate-700 font-medium">
+                        
+                        <!-- GADGET PHYSICAL INSPECTION SECTION -->
+                        <tr class="komponen-baris bg-white hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">1</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Layar</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Mulus (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="5" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Gores (-5%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="25" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Pecah/Shadow (-25%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-slate-50/30 hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">2</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Frame</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Mulus (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="5" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Lecet (-5%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="15" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Penyok/Bengkok (-15%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-white hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">3</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Backdoor</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Mulus (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="3" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Lecet (-3%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="10" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Retak/Pecah (-10%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-slate-50/30 hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">4</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Camera Depan</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Normal (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="5" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Baret Kaca (-5%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="15" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Mati/Blur (-15%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-white hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">5</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Camera Belakang</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Normal (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="5" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Baret Kaca (-5%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="20" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Mati/Vibrasi (-20%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-slate-50/30 hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">6</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Speaker / Mic</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Jernih (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="5" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Sember (-5%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="10" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Mati (-10%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-white hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">7</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Tombol Fisik</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Empuk (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="3" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Keras/Mendem (-3%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="8" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Mati (-8%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-slate-50/30 hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">8</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Port Charger</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Normal (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="5" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Goyang (-5%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="12" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Tdk Bisa Cas (-12%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-white hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">9</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Port Audio</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Normal (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="3" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Goyang (-3%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="6" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Tdk Berfungsi (-6%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-slate-50/30 hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">10</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Sensor</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Normal (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="3" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Lambat (-3%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="7" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Rusak (-7%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-white hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">11</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Fingerprint / Face ID</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Normal (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="5" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Sering Gagal (-5%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="15" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Rusak / Off (-15%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-slate-50/30 hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">12</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Simtray</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Normal (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="3" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Patah Slot (-3%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="5" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Tdk Baca Kartu (-5%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-white hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">13</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Baterai (Kesehatan)</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">BH > 80% (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="5" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">BH < 80% / Boros (-5%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="15" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Kembung/Service (-15%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-slate-50/30 hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-slate-400">14</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-semibold">Status Servis / Mesin</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Segel Utuh (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="10" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Pernah Ganti Part (-10%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="25" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Ex-Servis Mesin (-25%)</span></label></td>
+                        </tr>
+
+                        <!-- ACCESSORIES & BOX KITS SECTION -->
+                        <tr class="no-print bg-slate-200/50 text-slate-700 font-bold text-xs uppercase tracking-wider">
+                            <td class="py-2.5 px-3 text-center border-y border-slate-300">⚙️</td>
+                            <td colspan="4" class="py-2.5 px-4 border-y border-slate-300 text-blue-800">Kategori Kelengkapan Unit (Aksesoris Tambahan)</td>
+                        </tr>
+                        <tr class="komponen-baris bg-blue-50/20 hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-blue-600">15</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-bold">Box / Dus Handphone</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Ada / Original (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="3" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Ada / OEM (-3%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="8" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Batangan / Tdk Ada (-8%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-blue-50/10 hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-blue-600">16</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-bold">Kepala Charger (Adaptor)</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Ada / Original (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="2" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Ada / Kw-OEM (-2%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="5" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Tidak Ada (-5%)</span></label></td>
+                        </tr>
+                        <tr class="komponen-baris bg-blue-50/20 hover:bg-slate-50/80 transition-all">
+                            <td class="py-3.5 px-3 text-center font-bold text-blue-600">17</td>
+                            <td class="py-3.5 px-4 text-slate-900 font-bold">Kabel Data (USB Cable)</td>
+                            <td class="py-3.5 px-4 bg-emerald-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-emerald-600" data-potongan="0" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-emerald-700 font-semibold">Ada / Original (0%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-amber-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-amber-600" data-potongan="1" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-amber-700">Ada / Biasa (-1%)</span></label></td>
+                            <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="3" onclick="pilihSatuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Tidak Ada (-3%)</span></label></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- TOTAL HASIL OUTPUT AKHIR -->
+            <div class="mt-6 bg-slate-50 border border-slate-200 rounded-xl p-5 flex justify-between items-center shadow-inner">
+                <span class="text-sm font-bold uppercase tracking-wider text-slate-600">Total Taksiran Akhir Harga Unit:</span>
+                <span id="hasilAkhir" class="text-2xl font-black text-blue-600 tracking-tight">Rp 0</span>
+            </div>
+
+            <!-- AREA SKETSA HANDPHONE & CATATAN KHUSUS -->
+            <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-200 pt-6">
+                <!-- Sisi Kiri: Sketsa Posisi Kerusakan -->
+                <div class="border border-slate-200 rounded-xl p-5 bg-slate-50/50 flex flex-col items-center">
+                    <span class="text-xs font-bold text-slate-500 uppercase mb-4 block tracking-widest">Sketsa Posisi Kerusakan Fisik</span>
+                    <div class="flex justify-around items-center w-full gap-6 py-2">
+                        <!-- Sisi Depan -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-24 h-44 border-4 border-slate-400 rounded-2xl relative flex items-center justify-center bg-white shadow-sm">
+                                <div class="w-10 h-1 bg-slate-400 rounded-full absolute top-2"></div>
+                                <div class="w-4 h-4 border-2 border-slate-300 rounded-full absolute bottom-2"></div>
+                                <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">DEPAN</span>
+                            </div>
+                        </div>
+                        <!-- Sisi Belakang -->
+                        <div class="flex flex-col items-center">
+                            <div class="w-24 h-44 border-4 border-slate-400 rounded-2xl relative bg-white shadow-sm p-2">
+                                <div class="w-7 h-7 border-2 border-slate-400 rounded bg-slate-50 flex flex-wrap gap-0.5 p-0.5">
+                                    <div class="w-2 h-2 rounded-full bg-slate-400"></div>
+                                    <div class="w-2 h-2 rounded-full bg-gray-400"></div>
+                                    <div class="w-1.5 h-1.5 rounded-full bg-slate-300 mt-0.5"></div>
+                                </div>
+                                <div class="w-full h-full flex items-center justify-center absolute inset-0">
+                                    <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">BELAKANG</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="text-[10px] text-slate-400 text-center mt-3 leading-tight">*Gunakan sketsa di atas untuk menandai letak goresan atau keretakan saat dicetak.</p>
+                </div>
+
+                <!-- Sisi Kanan: Input Catatan -->
+                <div class="flex flex-col">
+                    <span class="text-xs font-bold text-slate-500 uppercase mb-2 block tracking-widest">Catatan Tambahan & Detail Kelengkapan:</span>
+                    <textarea id="catatanKelengkapan" class="w-full flex-1 min-h-[160px] p-3 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-slate-400 shadow-inner" placeholder="Tulis rincian tambahan, kelengkapan aksesoris, atau detail minus khusus lainnya di sini..."></textarea>
+                </div>
+            </div>
+
+            <!-- KETENTUAN KESEPAKATAN LEGALITAS -->
+            <div class="mt-6 text-xs text-slate-500 leading-relaxed border-t border-slate-200 pt-4">
+                <p class="font-bold uppercase mb-1 text-slate-700">KETENTUAN KESEPAKATAN</p>
+                <p class="italic">
+                    Telah dilakukan pengecekan bersama oleh PIHAK konsumen dengan PIHAK penaksir dan telah disetujui 
+                    oleh KEDUA BELAH PIHAK bahwa kondisi unit handphone yang diperiksa sesuai dengan checklist di atas. 
+                </p>
+            </div>
+
+            <!-- AREA VERIFIKASI TANDA TANGAN -->
+            <div class="mt-10 grid grid-cols-2 gap-12 text-center text-sm text-slate-700">
+                <div class="flex flex-col items-center justify-between h-24">
+                    <span class="font-medium">Tanda Terima Konsumen</span>
+                    <span class="w-44 border-b border-slate-400 block mt-8"></span>
+                </div>
+                <div class="flex flex-col items-center justify-between h-24">
+                    <span class="font-medium">Teknisi / Checker</span>
+                    <span class="w-44 border-b border-slate-400 block mt-8"></span>
+                </div>
+            </div>
+
+            <!-- ACTION BUTTONS LAYAR (AUTO SAVE & PRINT) -->
+            <div class="no-print mt-10 flex justify-end gap-3">
+                <button onclick="prosesSimpanDanCetak()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-500/20 cursor-pointer flex items-center transition-all duration-150 active:scale-95 gap-2 text-sm">
+                    🖨️ Simpan dan Cetak Nota
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL DATABASE POPUP HISTORY               -->
+    <!-- ========================================== -->
+    <div id="modalDatabase" class="no-print hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-5xl max-h-[85vh] rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden text-slate-800">
+            <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+                <h3 class="text-base font-bold text-slate-800 flex items-center gap-2 uppercase tracking-wide">🗄️ Database Rekam Inspeksi</h3>
+                <button onclick="tutupModalDatabase()" class="text-slate-400 hover:text-slate-600 text-xl font-bold cursor-pointer">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1 space-y-4">
+                <p class="text-xs text-slate-500">Berikut adalah data transaksi arsip toko. Tombol hapus data hanya akan aktif dan merespons jika Anda masuk sebagai peran Superuser.</p>
+                <div class="overflow-x-auto border border-slate-200 rounded-xl bg-white shadow-inner">
+                    <table class="w-full text-left text-xs border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-slate-700 font-bold">
+                                <th class="p-3">Tanggal/Jam</th>
+                                <th class="p-3">Konsumen</th>
+                                <th class="p-3">No. HP</th>
+                                <th class="p-3">Unit Gawai</th>
+                                <th class="p-3">IMEI 1</th>
+                                <th class="p-3">Harga Akhir</th>
+                                <th class="p-3 text-center">Aksi Operasional</th>
+                            </tr>
+                        </thead>
+                        <tbody id="databaseTableBody" class="divide-y divide-slate-200 text-slate-600">
+                            <!-- Data dimasukkan oleh JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="p-4 border-t border-slate-200 flex justify-between gap-2 bg-slate-50等">
+                <button onclick="bersihkanSemuaDatabase()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs cursor-pointer transition-all shadow-md shadow-red-500/10">
+                    散 Kosongkan Database (Superuser Only)
+                </button>
+                <button onclick="tutupModalDatabase()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-xl text-xs cursor-pointer transition-all">Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- MODAL PENGATURAN PASSWORD (SUPERUSER ONLY) -->
+    <!-- ========================================== -->
+    <div id="modalPassword" class="no-print hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+                <h3 class="text-sm font-bold text-slate-800 uppercase tracking-wide">🔑 Set Password User</h3>
+                <button onclick="tutupModalPassword()" class="text-slate-400 text-xl font-bold cursor-pointer">&times;</button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Pilih User</label>
+                    <select id="setPassRole" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm bg-slate-50 font-medium cursor-pointer">
+                        <option value="Teknisi">Teknisi / Checker</option>
+                        <option value="Admin">Admin Toko</option>
+                        <option value="Superuser">Superuser (Owner)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Password Baru</label>
+                    <input type="password" id="setPassBaru" class="w-full border border-slate-300 rounded-xl px-3 py-2 text-sm" placeholder="Masukkan password baru">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-3 border-t border-slate-100">
+                <button onclick="tutupModalPassword()" class="bg-slate-100 border border-slate-200 text-slate-700 font-bold px-4 py-2 rounded-xl text-xs cursor-pointer">Batal</button>
+                <button onclick="prosesSimpanPassword()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-4 py-2 rounded-xl text-xs cursor-pointer shadow-md shadow-blue-500/10">Simpan Password</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT ENGINE & SECURITY INTEGRATION   -->
+    <!-- ========================================== -->
+    <script>
+        let SESI_ROLE_AKTIF = "";
+
+        // Fungsi Hash SHA-256
+        async function sha256(string) {
+            const utf8 = new TextEncoder().encode(string);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', utf8);
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        // Kunci enkripsi default
+        async function inisialisasiSandiDefault() {
+            if (!localStorage.getItem('pwd_Superuser')) {
+                localStorage.setItem('pwd_Superuser', await sha256("superuser123"));
+                localStorage.setItem('pwd_Teknisi', await sha256("teknisi123"));
+                localStorage.setItem('pwd_Admin', await sha256("admin123"));
+            }
+        }
+        inisialisasiSandiDefault();
+
+        /**
+         * FUNGSI PROSES AUTHENTICATED LOGIN
+         */
+        async function prosesLogin() {
+            const role = document.getElementById('loginRole').value;
+            const passInput = document.getElementById('loginPassword').value;
+            
+            if(!passInput) {
+                alert("Harap masukkan password terlebih dahulu.");
+                return;
+            }
+
+            const inputHash = await sha256(passInput);
+            const savedHash = localStorage.getItem('pwd_' + role);
+
+            if (inputHash === savedHash) {
+                SESI_ROLE_AKTIF = role;
+                
+                document.getElementById('panelLogin').classList.add('hidden');
+                document.getElementById('kontenAplikasi').classList.remove('hidden');
+                
+                const badge = document.getElementById('badgeRole');
+                badge.innerText = "Sesi: " + role;
+                
+                if(role === "Superuser") {
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200";
+                    document.getElementById('btnKelolaPassword').classList.remove('hidden');
+                } else if(role === "Admin") {
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200";
+                    document.getElementById('btnKelolaPassword').classList.add('hidden');
+                } else {
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200";
+                    document.getElementById('btnKelolaPassword').classList.add('hidden');
+                }
+                
+                document.getElementById('loginPassword').value = "";
+            } else {
+                alert("❌ Password Salah! Autentikasi untuk akses " + role + " ditolak.");
+            }
+        }
+
+        function prosesLogout() {
+            SESI_ROLE_AKTIF = "";
+            document.getElementById('kontenAplikasi').classList.add('hidden');
+            document.getElementById('panelLogin').classList.remove('hidden');
+        }
+
+        /**
+         * PENGATURAN PASSWORD OLEH SUPERUSER
+         */
+        function bukaModalPassword() {
+            if(SESI_ROLE_AKTIF !== "Superuser") return;
+            document.getElementById('modalPassword').classList.remove('hidden');
+        }
+
+        function tutupModalPassword() {
+            document.getElementById('modalPassword').classList.add('hidden');
+            document.getElementById('setPassBaru').value = "";
+        }
+
+        async function prosesSimpanPassword() {
+            const targetUser = document.getElementById('setPassRole').value;
+            const passBaru = document.getElementById('setPassBaru').value.trim();
+
+            if(passBaru.length < 4) {
+                alert("Password terlalu pendek! Minimal terdiri dari 4 karakter.");
+                return;
+            }
+
+            const hashBaru = await sha256(passBaru);
+            localStorage.setItem('pwd_' + targetUser, hashBaru);
+            
+            alert(`🎉 Sukses! Password untuk hak akses [${targetUser}] berhasil diperbarui.`);
+            tutupModalPassword();
+        }
+
+        /**
+         * COUPLING ENGINE: OTOMATIS SIMPAN DATABASE LALU PRINT CETAK
+         */
+        function prosesSimpanDanCetak() {
+            if (simpanKeDatabase()) {
+                setTimeout(function() {
+                    window.print();
+                }, 500);
+            }
+        }
+
+        function simpanKeDatabase() {
+            const payloadData = {
+                id: "TRX-" + Date.now(),
+                timestamp: new Date().toLocaleString('id-ID'),
+                konsumen: document.getElementById('namaKonsumen').value.trim(),
+                nik: document.getElementById('nikKonsumen').value.trim(),
+                no_hp: document.getElementById('noHpKonsumen').value.trim(),
+                merek: document.getElementById('merekHp').value,
+                tipe: document.getElementById('tipeHp').value.trim(),
+                imei_1: document.getElementById('imei1').value.trim(),
+                imei_2: document.getElementById('imei2').value.trim(),
+                harga_pasaran: document.getElementById('hargaDasarTeks').value,
+                harga_akhir: document.getElementById('hasilAkhir').innerText,
+                catatan: document.getElementById('catatanKelengkapan').value.trim(),
+                checkedItems: dapatkanSusunanCeklis()
+            };
+
+            if (!payloadData.konsumen || !payloadData.merek || !payloadData.harga_pasaran || payloadData.harga_pasaran === "0") {
+                alert("⚠️ Gagal Memproses! Harap lengkapi setidaknya Nama Konsumen, Merek HP, dan Nominal Harga Pasaran.");
+                return false;
+            }
+
+            try {
+                let currentDB = JSON.parse(localStorage.getItem('db_inspeksi_hp')) || [];
+                currentDB.push(payloadData);
+                localStorage.setItem('db_inspeksi_hp', JSON.stringify(currentDB));
+                return true;
+            } catch (error) {
+                alert("❌ Gangguan Database Lokal device.");
+                return false;
+            }
+        }
+
+        /**
+         * FUNGSI RE-PRINT CETAK ULANG DARI DATA HISTORY LAMA
+         */
+        function cetakUlangRecord(idRecord) {
+            let currentDB = JSON.parse(localStorage.getItem('db_inspeksi_hp')) || [];
+            let dataTerpilih = currentDB.find(row => row.id === idRecord);
+
+            if (!dataTerpilih) return;
+
+            document.getElementById('namaKonsumen').value = dataTerpilih.konsumen;
+            document.getElementById('nikKonsumen').value = dataTerpilih.nik;
+            document.getElementById('noHpKonsumen').value = dataTerpilih.no_hp;
+            document.getElementById('merekHp').value = dataTerpilih.merek;
+            document.getElementById('tipeHp').value = dataTerpilih.tipe;
+            document.getElementById('imei1').value = dataTerpilih.imei_1;
+            document.getElementById('imei2').value = dataTerpilih.imei_2;
+            document.getElementById('hargaDasarTeks').value = dataTerpilih.harga_pasaran;
+            document.getElementById('catatanKelengkapan').value = dataTerpilih.catatan;
+
+            let semuaCheckbox = document.querySelectorAll('.minus-item');
+            semuaCheckbox.forEach(cb => cb.checked = false);
+
+            dataTerpilih.checkedItems.forEach(function(index) {
+                if (semuaCheckbox[index]) semuaCheckbox[index].checked = true;
+            });
+
+            hitungTaksiran();
+            tutupModalDatabase();
+            
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        }
+
+        function dapatkanSusunanCeklis() {
+            let susunanIndeks = [];
+            let semuaCheckbox = document.querySelectorAll('.minus-item');
+            semuaCheckbox.forEach(function(cb, indeks) {
+                if(cb.checked) susunanIndeks.push(indeks);
+            });
+            return susunanIndeks;
+        }
+
+        /**
+         * VALIDASI PROTEKSI HAPUS (WAJIB PASSWORD & AKUN SUPERUSER)
+         */
+        async function hapusRecordData(idRecord) {
+            if (SESI_ROLE_AKTIF !== "Superuser") {
+                alert("⛔ Akses Ditolak! Hanya hak akses 'Superuser' (Owner) yang berwenang menghapus data riwayat.");
+                return;
+            }
+
+            let inputPassword = prompt("🔐 Konfirmasi Keamanan Superuser:\n\nMasukkan password akun Superuser Anda untuk menghapus record ini:");
+            if (inputPassword === null) return; 
+
+            const verifyHash = await sha256(inputPassword);
+            const currentHash = localStorage.getItem('pwd_Superuser');
+
+            if (verifyHash === currentHash) {
+                let currentDB = JSON.parse(localStorage.getItem('db_inspeksi_hp')) || [];
+                let updatedDB = currentDB.filter(row => row.id !== idRecord);
+                localStorage.setItem('db_inspeksi_hp', JSON.stringify(updatedDB));
+                renderDataTabelDatabase();
+                alert("🗑️ Record riwayat penaksiran berhasil dihapus.");
+            } else {
+                alert("❌ Password Salah! Operasi penghapusan dibatalkan.");
+            }
+        }
+
+        /**
+         * VALIDASI KOSONGKAN DATABASE TOTAL
+         */
+        async function bersihkanSemuaDatabase() {
+            if (SESI_ROLE_AKTIF !== "Superuser") {
+                alert("⛔ Akses Ditolak! Fitur pengosongan total dilindungi dan hanya bisa digunakan oleh Superuser.");
+                return;
+            }
+
+            let inputPassword = prompt("⚠️ PERINGATAN CRITICAL DATABASE RESET!\n\nMasukkan password Superuser Anda untuk menghapus SELURUH database:");
+            if (inputPassword === null) return;
+
+            const verifyHash = await sha256(inputPassword);
+            const currentHash = localStorage.getItem('pwd_Superuser');
+
+            if (verifyHash === currentHash) {
+                if (confirm("Apakah Anda benar-benar yakin? Semua arsip riwayat toko akan lenyap selamanya.")) {
+                    localStorage.removeItem('db_inspeksi_hp');
+                    renderDataTabelDatabase();
+                    alert("🧹 Database dibersihkan total.");
+                }
+            } else {
+                alert("❌ Password Salah! Pembersihan total digagalkan.");
+            }
+        }
+
+        /**
+         * SYSTEM DATABASE UTILITY CONTROL
+         */
+        function bukaModalDatabase() {
+            document.getElementById('modalDatabase').classList.remove('hidden');
+            renderDataTabelDatabase();
+        }
+
+        function tutupModalDatabase() {
+            document.getElementById('modalDatabase').classList.add('hidden');
+        }
+
+        function renderDataTabelDatabase() {
+            const containerTabel = document.getElementById('databaseTableBody');
+            let currentDB = JSON.parse(localStorage.getItem('db_inspeksi_hp')) || [];
+            
+            if (currentDB.length === 0) {
+                containerTabel.innerHTML = `<tr><td colspan="7" class="p-4 text-center italic text-slate-400">Database Kosong.</td></tr>`;
+                return;
+            }
+
+            containerTabel.innerHTML = currentDB.map(function(row) {
+                return `
+                    <tr class="border-b border-slate-100 hover:bg-slate-50 transition-all">
+                        <td class="p-3">${row.timestamp}</td>
+                        <td class="p-3 font-bold text-slate-800">${row.konsumen}</td>
+                        <td class="p-3 text-slate-500">${row.no_hp || '-'}</td>
+                        <td class="p-3 text-slate-700 font-medium">${row.merek} ${row.tipe}</td>
+                        <td class="p-3 font-mono text-slate-400">${row.imei_1 || '-'}</td>
+                        <td class="p-3 font-extrabold text-blue-600">${row.harga_akhir}</td>
+                        <td class="p-3 text-center flex justify-center gap-1.5">
+                            <button onclick="cetakUlangRecord('${row.id}')" class="bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200 px-2 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-all">
+                                🖨️ Cetak Ulang
+                            </button>
+                            <button onclick="hapusRecordData('${row.id}')" class="bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 px-2 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition-all">
+                                Hapus
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function bukaReferensiHarga() {
+            let merek = document.getElementById('merekHp').value;
+            let tipe = document.getElementById('tipeHp').value.trim();
+            let keyword = encodeURIComponent((merek + " " + tipe).trim());
+            let urlTujuan = "https://shop.maujual.com/";
+            if (keyword !== "") urlTujuan = "https://shop.maujual.com/search?q=" + keyword;
+            window.open(urlTujuan, '_blank');
+        }
+
+        function pilihSatuKondisi(checkboxTerpilih) {
+            let barisAtas = checkboxTerpilih.closest('.komponen-baris');
+            let semuaCheckboxDiBaris = barisAtas.querySelectorAll('.minus-item');
+            semuaCheckboxDiBaris.forEach(function(cb) {
+                if (cb !== checkboxTerpilih) cb.checked = false;
+            });
+            hitungTaksiran();
+        }
+
+        function formatDanHitung(inputElemen) {
+            let nilaiBersih = inputElemen.value.replace(/\D/g, "");
+            inputElemen.value = nilaiBersih !== "" ? new Intl.NumberFormat('id-ID').format(nilaiBersih) : "";
+            hitungTaksiran();
+        }
+
+        function hitungTaksiran() {
+            let teksHarga = document.getElementById('hargaDasarTeks').value;
+            let hargaDasar = parseFloat(teksHarga.replace(/\./g, "")) || 0;
+            let totalPersenPotongan = 0;
+            
+            let checkboxes = document.querySelectorAll('.minus-item:checked');
+            checkboxes.forEach(function(item) {
+                totalPersenPotongan += parseFloat(item.getAttribute('data-potongan'));
+            });
+
+            let nominalPotongan = (totalPersenPotongan / 100) * hargaDasar;
+            let hargaAkhir = Math.max(0, hargaDasar - nominalPotongan);
+
+            document.getElementById('hasilAkhir').innerText = new Intl.NumberFormat('id-ID', {
+                style: 'currency', currency: 'IDR', maximumFractionDigits: 0
+            }).format(hargaAkhir);
+        }
+    </script>
+</body>
+</html>
