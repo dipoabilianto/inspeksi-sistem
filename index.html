@@ -73,7 +73,7 @@
             <div>
                 <label class="block text-xs font-bold text-slate-600 uppercase tracking-wider mb-1">Pilih Pengguna / Role</label>
                 <select id="loginRole" class="w-full border border-slate-300 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 text-slate-700 bg-slate-50 font-medium cursor-pointer">
-                    <option value="Teknisi">Teknisi / Checker</option>
+                    <option value="Teknini">Teknisi / Checker</option>
                     <option value="Admin">Admin Toko</option>
                     <option value="Superuser">Superuser (Owner)</option>
                 </select>
@@ -193,6 +193,8 @@
                     <span class="text-xs text-slate-500 block leading-tight mt-0.5">Gunakan tombol cek harga untuk riset pasaran sebelum menginput nominal harga acuan.</span>
                 </div>
             </div>
+
+            <h2 class="text-md font-bold text-gray-900 mb-3 uppercase tracking-wider">Kondisi Fisik & Fungsi</h2>
 
             <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-sm">
                 <table class="w-full text-left text-sm border-collapse min-w-[650px]">
@@ -393,8 +395,8 @@
             </div>
 
             <div class="no-print mt-10 flex justify-end">
-                <button onclick="eksekusiSimpanMurni()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-4 rounded-xl shadow-md transition-all duration-150 active:scale-95 gap-2 text-sm flex items-center justify-center cursor-pointer">
-                    💾 Simpan Hasil Inspeksi
+                <button onclick="pemicuProsesData()" class="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 text-white font-bold px-8 py-4 rounded-xl shadow-md transition-all duration-150 active:scale-95 gap-2 text-sm flex items-center justify-center cursor-pointer">
+                    ⚡ Proses Data
                 </button>
             </div>
 
@@ -403,19 +405,19 @@
 
     <div id="modalSuksesSimpan" class="no-print hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 p-6 text-center space-y-4 transition-all">
-            <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl shadow-sm border border-emerald-100">
-                🎉
+            <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center mx-auto text-3xl shadow-sm border border-blue-100">
+                ⚙️
             </div>
             <div>
-                <h3 class="text-lg font-black text-slate-800 uppercase tracking-wide">Data Berhasil Disimpan!</h3>
-                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Rekam rekap penaksiran unit gawai telah aman tersimpan ke dalam database lokal toko.</p>
+                <h3 class="text-lg font-black text-slate-800 uppercase tracking-wide">Pilih Tindakan Aksi</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Silakan tentukan keputusan kondisi pemrosesan data gawai di bawah ini:</p>
             </div>
             <div class="flex flex-col gap-2 pt-2 border-t border-slate-100">
-                <button onclick="pilihCetakDokumen()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs cursor-pointer transition-all shadow-md shadow-blue-500/10">
-                    🖨️ Cetak Nota Pengecekan
+                <button onclick="kondisiSimpanDanCetak()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-4 py-3 rounded-xl text-xs cursor-pointer transition-all shadow-md shadow-emerald-500/10">
+                    ✅ Simpan dan Cetak
                 </button>
-                <button onclick="pilihKembaliHome()" class="w-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-bold py-3 rounded-xl text-xs cursor-pointer transition-all">
-                    🟢 Kembali ke Beranda (Reset Form)
+                <button onclick="kondisiBatalDanKeluar()" class="w-full bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold px-4 py-3 rounded-xl text-xs cursor-pointer transition-all">
+                    ❌ Batal dan Keluar
                 </button>
             </div>
         </div>
@@ -484,9 +486,8 @@
     </div>
 
     <script>
-        // Pembatasan Waktu Inaktivitas (15 Menit)
         let timerInaktivitas;
-        const WAKTU_LOGOUT_OTOMATIS = 15 * 60 * 1000;
+        const WAKTU_LOGOUT_OTOMATIS = 15 * 60 * 1000; // 15 menit
         let SESI_ROLE_AKTIF = "";
 
         // Fungsi Hash SHA-256
@@ -507,7 +508,7 @@
         }
 
         /**
-         * FUNGSI UTAMA CEK SESI (DIJALANKAN DI AWAL BANNER ONLOAD - SOLUSI ANTI REFRESH LOGOUT)
+         * FUNGSI UTAMA CEK SESI (ANTI REFRESH LOGOUT)
          */
         function periksaSesiLoginLokal() {
             const savedRole = sessionStorage.getItem('sesi_user_role');
@@ -515,7 +516,6 @@
             if (savedRole && savedRole !== "") {
                 SESI_ROLE_AKTIF = savedRole;
                 
-                // Lewati Form Login dan Langsung Buka Dashboard Aplikasi
                 document.getElementById('panelLogin').classList.add('hidden');
                 document.getElementById('kontenAplikasi').classList.remove('hidden');
                 
@@ -533,7 +533,6 @@
                     document.getElementById('btnKelolaPassword').classList.add('hidden');
                 }
                 
-                // Jalankan pelacak aktivitas inaktivitas
                 resetTimerInaktivitas();
             }
         }
@@ -576,7 +575,6 @@
             if (inputHash === savedHash) {
                 SESI_ROLE_AKTIF = role;
                 
-                // Amankan role ke sessionStorage agar saat di-refresh tidak hilang
                 sessionStorage.setItem('sesi_user_role', role);
                 
                 document.getElementById('panelLogin').classList.add('hidden');
@@ -605,7 +603,7 @@
 
         function prosesLogout() {
             SESI_ROLE_AKTIF = "";
-            sessionStorage.removeItem('sesi_user_role'); // Bersihkan tanda pengenal sesi
+            sessionStorage.removeItem('sesi_user_role');
             clearTimeout(timerInaktivitas);
             document.getElementById('kontenAplikasi').classList.add('hidden');
             document.getElementById('panelLogin').classList.remove('hidden');
@@ -641,37 +639,55 @@
         }
 
         /**
-         * EKSEKUSI SIMPAN MURNI (ALUR BARU DENGAN POPUP KUSTOM)
+         * PEMICU TOMBOL UTAMA: PROSES DATA (Membuka Pilihan Modal Dialog)
          */
-        function eksekusiSimpanMurni() {
+        function pemicuProsesData() {
+            // Validasi kelayakan inputan wajib sebelum pop-up terbuka
+            let nama = document.getElementById('namaKonsumen').value.trim();
+            let merek = document.getElementById('merekHp').value;
+            let harga = document.getElementById('hargaDasarTeks').value;
+
+            if (!nama || !merek || !harga || harga === "0") {
+                alert("⚠️ Gagal Memproses! Harap lengkapi setidaknya Nama Konsumen, Merek HP, dan Nominal Harga Pasaran.");
+                return;
+            }
+            
+            // Tampilkan Modal Pilihan Alur
+            document.getElementById('modalSuksesSimpan').classList.remove('hidden');
+        }
+
+        /**
+         * ALUR KONDISI PERTAMA: "Simpan dan Cetak"
+         */
+        function kondisiSimpanDanCetak() {
+            document.getElementById('modalSuksesSimpan').classList.add('hidden');
+            
+            // Eksekusi kunci ke database arsip
             if (simpanKeDatabase()) {
-                // Tampilkan Modal Pilihan Aksi Sukses
-                document.getElementById('modalSuksesSimpan').classList.remove('hidden');
+                setTimeout(function() {
+                    window.print(); // Buka jendela cetak printer
+                    
+                    // Berikan jeda sejenak pasca cetak untuk mengosongkan formulir secara bersih
+                    setTimeout(function() {
+                        kosongkanFormulirInspeksi();
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }, 1000);
+                }, 300);
             }
         }
 
         /**
-         * ALUR POPUP AKSI 1: KEMBALI KE HOME / RESET FORM
+         * ALUR KONDISI KEDUA: "Batal dan Keluar"
          */
-        function pilihKembaliHome() {
+        function kondisiBatalDanKeluar() {
             document.getElementById('modalSuksesSimpan').classList.add('hidden');
+            // Langsung bersihkan form tanpa menyimpan data apa pun ke database
             kosongkanFormulirInspeksi();
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         /**
-         * ALUR POPUP AKSI 2: CETAK NOTA DOKUMEN
-         */
-        function pilihCetakDokumen() {
-            document.getElementById('modalSuksesSimpan').classList.add('hidden');
-            // Beri sedikit jeda agar modal tertutup sempurna sebelum cetak berkas dimulai
-            setTimeout(function() {
-                window.print();
-            }, 300);
-        }
-
-        /**
-         * FUNGSI RESET FORM KEMBALI BERSIH
+         * FUNGSI RESET FORM KEMBALI BERSIH (Home Reset)
          */
         function kosongkanFormulirInspeksi() {
             document.getElementById('namaKonsumen').value = "";
@@ -709,11 +725,6 @@
                 catatan: document.getElementById('catatanKelengkapan').value.trim(),
                 checkedItems: dapatkanSusunanCeklis()
             };
-
-            if (!payloadData.konsumen || !payloadData.merek || !payloadData.harga_pasaran || payloadData.harga_pasaran === "0") {
-                alert("⚠️ Gagal Memproses! Harap lengkapi setidaknya Nama Konsumen, Merek HP, dan Nominal Harga Pasaran.");
-                return false;
-            }
 
             try {
                 let currentDB = JSON.parse(localStorage.getItem('db_riwayat_inspeksi')) || [];
@@ -910,9 +921,7 @@
         // SISTEM INITIALIZER UTAMA
         // ==========================================
         window.addEventListener('DOMContentLoaded', async function() {
-            // 1. Jalankan inisialisasi sandi terenkripsi
             await inisialisasiSandiDefault();
-            // 2. Jalankan pemeriksaan token sesi aktif (Anti Refresh Reset)
             periksaSesiLoginLokal();
         });
     </script>
