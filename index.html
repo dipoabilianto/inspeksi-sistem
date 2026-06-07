@@ -392,15 +392,32 @@
                 </div>
             </div>
 
-            <div class="no-print mt-10 flex flex-col sm:flex-row justify-end gap-3">
-                <button onclick="eksekusiSimpanMurni()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-all duration-150 active:scale-95 gap-2 text-sm flex items-center justify-center cursor-pointer">
-                    💾 Simpan ke Database
-                </button>
-                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-all duration-150 active:scale-95 gap-2 text-sm flex items-center justify-center cursor-pointer">
-                    🖨️ Cetak Nota Pengecekan
+            <div class="no-print mt-10 flex justify-end">
+                <button onclick="eksekusiSimpanMurni()" class="w-full sm:w-auto bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-8 py-4 rounded-xl shadow-md transition-all duration-150 active:scale-95 gap-2 text-sm flex items-center justify-center cursor-pointer">
+                    💾 Simpan Hasil Inspeksi
                 </button>
             </div>
 
+        </div>
+    </div>
+
+    <div id="modalSuksesSimpan" class="no-print hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 p-6 text-center space-y-4 transition-all">
+            <div class="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl shadow-sm border border-emerald-100">
+                🎉
+            </div>
+            <div>
+                <h3 class="text-lg font-black text-slate-800 uppercase tracking-wide">Data Berhasil Disimpan!</h3>
+                <p class="text-xs text-slate-500 mt-1 leading-relaxed">Rekam rekap penaksiran unit gawai telah aman tersimpan ke dalam database lokal toko.</p>
+            </div>
+            <div class="flex flex-col gap-2 pt-2 border-t border-slate-100">
+                <button onclick="pilihCetakDokumen()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs cursor-pointer transition-all shadow-md shadow-blue-500/10">
+                    🖨️ Cetak Nota Pengecekan
+                </button>
+                <button onclick="pilihKembaliHome()" class="w-full bg-slate-100 hover:bg-slate-200 border border-slate-300 text-slate-700 font-bold py-3 rounded-xl text-xs cursor-pointer transition-all">
+                    🟢 Kembali ke Beranda (Reset Form)
+                </button>
+            </div>
         </div>
     </div>
 
@@ -432,7 +449,7 @@
             </div>
             <div class="p-4 border-t border-slate-200 flex justify-between gap-2 bg-slate-50">
                 <button onclick="bersihkanSemuaDatabase()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-4 py-2.5 rounded-xl text-xs cursor-pointer transition-all shadow-md shadow-red-500/10">
-                    自由 Kosongkan Database (Superuser Only)
+                    Kosongkan Database (Superuser Only)
                 </button>
                 <button onclick="tutupModalDatabase()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-5 py-2.5 rounded-xl text-xs cursor-pointer transition-all">Tutup</button>
             </div>
@@ -470,6 +487,7 @@
         // Pembatasan Waktu Inaktivitas (15 Menit)
         let timerInaktivitas;
         const WAKTU_LOGOUT_OTOMATIS = 15 * 60 * 1000;
+        let SESI_ROLE_AKTIF = "";
 
         // Fungsi Hash SHA-256
         async function sha256(string) {
@@ -623,13 +641,33 @@
         }
 
         /**
-         * PILIHAN AKSES 1: SEPARATE SIMPAN MURNI
+         * EKSEKUSI SIMPAN MURNI (ALUR BARU DENGAN POPUP KUSTOM)
          */
         function eksekusiSimpanMurni() {
             if (simpanKeDatabase()) {
-                alert("💾 Sukses! Data rekam taksiran unit berhasil masuk ke database lokal.\n\nHalaman akan dikosongkan secara otomatis.");
-                kosongkanFormulirInspeksi();
+                // Tampilkan Modal Pilihan Aksi Sukses
+                document.getElementById('modalSuksesSimpan').classList.remove('hidden');
             }
+        }
+
+        /**
+         * ALUR POPUP AKSI 1: KEMBALI KE HOME / RESET FORM
+         */
+        function pilihKembaliHome() {
+            document.getElementById('modalSuksesSimpan').classList.add('hidden');
+            kosongkanFormulirInspeksi();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        /**
+         * ALUR POPUP AKSI 2: CETAK NOTA DOKUMEN
+         */
+        function pilihCetakDokumen() {
+            document.getElementById('modalSuksesSimpan').classList.add('hidden');
+            // Beri sedikit jeda agar modal tertutup sempurna sebelum cetak berkas dimulai
+            setTimeout(function() {
+                window.print();
+            }, 300);
         }
 
         /**
@@ -869,7 +907,7 @@
         }
 
         // ==========================================
-        // SISTEM INITIALIZER UTAMA (Wajib Digabung di Sini)
+        // SISTEM INITIALIZER UTAMA
         // ==========================================
         window.addEventListener('DOMContentLoaded', async function() {
             // 1. Jalankan inisialisasi sandi terenkripsi
