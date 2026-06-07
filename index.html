@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Formulir Inspeksi & Taksiran Harga HP Second</title>
+    <!-- Menggunakan Tailwind CSS v4 terbaru -->
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
         /* Gaya khusus saat halaman dicetak (Print Mode - Lebih Simpel & Rapi) */
@@ -61,6 +62,9 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen p-3 md:p-8 flex flex-col items-center justify-start gap-4">
 
+    <!-- ========================================== -->
+    <!-- PANEL LOGIN SISTEM                         -->
+    <!-- ========================================== -->
     <div id="panelLogin" class="no-print w-full max-w-md bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-200/80 my-auto transition-all">
         <div class="text-center mb-6">
             <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto text-2xl shadow-sm border border-blue-100">
@@ -88,8 +92,12 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- KONTEN APLIKASI (RESPONSIF MOBILE READY)   -->
+    <!-- ========================================== -->
     <div id="kontenAplikasi" class="hidden w-full max-w-4xl flex flex-col items-center gap-4">
         
+        <!-- PANEL KONTROL HAK AKSES OPERASIONAL -->
         <div class="no-print w-full flex flex-col md:flex-row justify-between items-center bg-white p-4 rounded-xl shadow-md border border-slate-200 gap-4">
             <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
                 <span class="text-sm font-bold text-slate-700 block whitespace-nowrap">👤 Sesi Aktif:</span>
@@ -109,8 +117,10 @@
             </div>
         </div>
 
+        <!-- WADAH UTAMA FORMULIR INSPEC -->
         <div class="print-container bg-white p-4 md:p-8 rounded-2xl shadow-xl w-full border border-slate-200 text-slate-800">
             
+            <!-- HEADER & IDENTITAS KONSUMEN -->
             <div class="border-b border-slate-200 pb-6 mb-6">
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6 bg-gradient-to-r from-blue-50 to-transparent p-4 rounded-xl border-l-4 border-blue-600 print:bg-none print:border-none print:p-0 print:mb-4">
                     <div class="flex items-center gap-3">
@@ -178,6 +188,7 @@
                 </div>
             </div>
             
+            <!-- INPUT HARGA DASAR & REFERENSI -->
             <div class="no-print bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6 flex flex-col lg:flex-row lg:items-end justify-between gap-4">
                 <div class="flex-1 flex flex-col sm:flex-row items-stretch sm:items-end gap-3">
                     <div class="flex-1">
@@ -194,8 +205,7 @@
                 </div>
             </div>
 
-            <h2 class="text-md font-bold text-gray-900 mb-3 uppercase tracking-wider">Kondisi Fisik & Fungsi</h2>
-
+            <!-- TABEL EVALUASI KOMPONEN (MOBILE SCROLLABLE) -->
             <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-sm">
                 <table class="w-full text-left text-sm border-collapse min-w-[650px]">
                     <thead>
@@ -209,6 +219,7 @@
                     </thead>
                     <tbody class="divide-y divide-slate-200 text-slate-700 font-medium">
                         
+                        <!-- GADGET PHYSICAL INSPECTION SECTION -->
                         <tr class="komponen-baris bg-white hover:bg-slate-50/80 transition-all">
                             <td class="py-3.5 px-3 text-center font-bold text-slate-400">1</td>
                             <td class="py-3.5 px-4 text-slate-900 font-semibold">Layar</td>
@@ -308,6 +319,7 @@
                             <td class="py-3.5 px-4 bg-rose-50/10"><label class="flex items-center cursor-pointer"><input type="checkbox" class="minus-item accent-rose-600" data-potongan="25" onclick="pilihSajuKondisi(this)"><span class="ml-2 text-xs text-rose-700">Ex-Servis Mesin (-25%)</span></label></td>
                         </tr>
 
+                        <!-- ACCESSORIES & BOX KITS SECTION -->
                         <tr class="bg-slate-200/50 text-slate-700 font-bold text-xs uppercase tracking-wider">
                             <td class="py-2.5 px-3 text-center border-y border-slate-300">⚙️</td>
                             <td colspan="4" class="py-2.5 px-4 border-y border-slate-300 text-blue-800">Kategori Kelengkapan Unit (Aksesoris Tambahan)</td>
@@ -337,15 +349,19 @@
                 </table>
             </div>
 
+            <!-- TOTAL HASIL OUTPUT AKHIR -->
             <div class="mt-6 bg-slate-50 border border-slate-200 rounded-xl p-5 flex justify-between items-center shadow-inner">
                 <span class="text-sm font-bold uppercase tracking-wider text-slate-600">Total Taksiran Akhir Harga Unit:</span>
                 <span id="hasilAkhir" class="text-2xl font-black text-blue-600 tracking-tight">Rp 0</span>
             </div>
 
+            <!-- AREA SKETSA HANDPHONE & CATATAN KHUSUS -->
             <div class="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-slate-200 pt-6">
+                <!-- Sisi Kiri: Sketsa Posisi Kerusakan -->
                 <div class="border border-slate-200 rounded-xl p-5 bg-slate-50/50 flex flex-col items-center">
                     <span class="text-xs font-bold text-slate-500 uppercase mb-4 block tracking-widest">Sketsa Posisi Kerusakan Fisik</span>
                     <div class="flex justify-around items-center w-full gap-6 py-2">
+                        <!-- Sisi Depan -->
                         <div class="flex flex-col items-center">
                             <div class="w-24 h-44 border-4 border-slate-400 rounded-2xl relative flex items-center justify-center bg-white shadow-sm">
                                 <div class="w-10 h-1 bg-slate-400 rounded-full absolute top-2"></div>
@@ -353,6 +369,7 @@
                                 <span class="text-[10px] font-bold text-slate-300 uppercase tracking-widest">DEPAN</span>
                             </div>
                         </div>
+                        <!-- Sisi Belakang -->
                         <div class="flex flex-col items-center">
                             <div class="w-24 h-44 border-4 border-slate-400 rounded-2xl relative bg-white shadow-sm p-2">
                                 <div class="w-7 h-7 border-2 border-slate-400 rounded bg-slate-50 flex flex-wrap gap-0.5 p-0.5">
@@ -369,12 +386,14 @@
                     <p class="text-[10px] text-slate-400 text-center mt-3 leading-tight">*Gunakan sketsa di atas untuk menandai letak goresan atau keretakan saat dicetak.</p>
                 </div>
 
+                <!-- Sisi Kanan: Input Catatan -->
                 <div class="flex flex-col">
                     <span class="text-xs font-bold text-slate-500 uppercase mb-2 block tracking-widest">Catatan Tambahan & Detail Kelengkapan:</span>
                     <textarea id="catatanKelengkapan" class="w-full flex-1 min-h-[160px] p-3 border border-slate-300 rounded-xl text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 placeholder-slate-400 shadow-inner" placeholder="Tulis rincian tambahan, kelengkapan aksesoris, atau detail minus khusus lainnya di sini..."></textarea>
                 </div>
             </div>
 
+            <!-- KETENTUAN KESEPAKATAN LEGALITAS -->
             <div class="mt-6 text-xs text-slate-500 leading-relaxed border-t border-slate-200 pt-4">
                 <p class="font-bold uppercase mb-1 text-slate-700">KETENTUAN KESEPAKATAN</p>
                 <p class="italic">
@@ -383,26 +402,36 @@
                 </p>
             </div>
 
+            <!-- AREA VERIFIKASI TANDA TANGAN -->
             <div class="mt-10 grid grid-cols-2 gap-12 text-center text-sm text-slate-700">
                 <div class="flex flex-col items-center justify-between h-24">
                     <span class="font-medium">Tanda Terima Konsumen</span>
-                    <span class="w-44 border-b border-slate-400 block mt-8"></span>
+                    <span class="w-44 border-b border-gray-400 block mt-8"></span>
                 </div>
                 <div class="flex flex-col items-center justify-between h-24">
                     <span class="font-medium">Teknisi / Checker</span>
-                    <span class="w-44 border-b border-slate-400 block mt-8"></span>
+                    <span class="w-44 border-b border-gray-400 block mt-8"></span>
                 </div>
             </div>
 
-            <div class="no-print mt-10 flex justify-end gap-3">
-                <button onclick="prosesSimpanDanCetak()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl shadow-lg shadow-blue-500/20 cursor-pointer flex items-center transition-all duration-150 active:scale-95 gap-2 text-sm">
-                    🖨️ Simpan dan Cetak Nota
+            <!-- ACTION BUTTONS LAYAR (MANUAL PILIHAN SEPARATE BUTTONS) -->
+            <div class="no-print mt-10 flex flex-col sm:flex-row justify-end gap-3">
+                <!-- Pilihan 1: Hanya Simpan Saja dan langsung Reset data -->
+                <button onclick="eksekusiSimpanMurni()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-all duration-150 active:scale-95 gap-2 text-sm flex items-center justify-center cursor-pointer">
+                    💾 Simpan ke Database
+                </button>
+                <!-- Pilihan 2: Hanya Cetak Saja secara instan kapan saja -->
+                <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-xl shadow-md transition-all duration-150 active:scale-95 gap-2 text-sm flex items-center justify-center cursor-pointer">
+                    🖨️ Cetak Nota Pengecekan
                 </button>
             </div>
 
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- MODAL DATABASE POPUP HISTORY               -->
+    <!-- ========================================== -->
     <div id="modalDatabase" class="no-print hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-5xl max-h-[85vh] rounded-2xl shadow-2xl border border-slate-200 flex flex-col overflow-hidden text-slate-800">
             <div class="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50">
@@ -424,8 +453,9 @@
                                 <th class="p-3 text-center">Aksi Operasional</th>
                             </tr>
                         </thead>
-                        <tbody id="databaseTableBody" class="divide-y divide-slate-200 text-gray-600">
-                            </tbody>
+                        <tbody id="databaseTableBody" class="divide-y divide-slate-200 text-slate-600">
+                            <!-- Data dimasukkan oleh JS -->
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -438,6 +468,9 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- MODAL PENGATURAN PASSWORD (SUPERUSER ONLY) -->
+    <!-- ========================================== -->
     <div id="modalPassword" class="no-print hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white w-full max-w-sm rounded-2xl shadow-2xl border border-slate-200 p-6 space-y-4">
             <div class="flex justify-between items-center border-b border-slate-100 pb-2">
@@ -465,10 +498,13 @@
         </div>
     </div>
 
+    <!-- ========================================== -->
+    <!-- JAVASCRIPT ENGINE & SECURITY INTEGRATION   -->
+    <!-- ========================================== -->
     <script>
         let SESI_ROLE_AKTIF = "";
         let timerInaktivitas;
-        const WAKTU_LOGOUT_OTOMATIS = 15 * 60 * 1000; // 15 menit dalam milidetik
+        const WAKTU_LOGOUT_OTOMATIS = 15 * 60 * 1000; // 15 menit
 
         // Fungsi Hash SHA-256
         async function sha256(string) {
@@ -489,20 +525,48 @@
         inisialisasiSandiDefault();
 
         /**
-         * ENGINE LOGOUT OTOMATIS BERDASARKAN INAKTIVITAS (15 Menit)
+         * ENGINE DETEKSI DAN CEK SESI LOGIN (Anti Reset saat Browser Di-refresh)
+         */
+        function cekSesiBrowserAktif() {
+            const savedRole = sessionStorage.getItem('sesi_user_role');
+            if (savedRole) {
+                SESI_ROLE_AKTIF = savedRole;
+                
+                // Buka aplikasi otomatis tanpa melalui panel login kembali
+                document.getElementById('panelLogin').classList.add('hidden');
+                document.getElementById('kontenAplikasi').classList.remove('hidden');
+                
+                const badge = document.getElementById('badgeRole');
+                badge.innerText = "Sesi: " + SESI_ROLE_AKTIF;
+                
+                if(SESI_ROLE_AKTIF === "Superuser") {
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200";
+                    document.getElementById('btnKelolaPassword').classList.remove('hidden');
+                } else if(SESI_ROLE_AKTIF === "Admin") {
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-800 border border-blue-200";
+                    document.getElementById('btnKelolaPassword').classList.add('hidden');
+                } else {
+                    badge.className = "px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800 border border-green-200";
+                    document.getElementById('btnKelolaPassword').classList.add('hidden');
+                }
+                resetTimerInaktivitas();
+            }
+        }
+
+        /**
+         * ENGINE LOGOUT OTOMATIS BERDASARKAN INAKTIVITAS (Murni Hitung Mundur 15 Menit Tanpa Interupsi Refresh)
          */
         function resetTimerInaktivitas() {
             if (SESI_ROLE_AKTIF !== "") {
                 clearTimeout(timerInaktivitas);
                 timerInaktivitas = setTimeout(function() {
-                    alert("⏰ Sesi Anda telah berakhir! Sistem otomatis melakukan logout karena tidak ada aktivitas selama 15 menit.");
+                    alert("⏰ Sesi Anda berakhir! Sistem otomatis melakukan logout demi keamanan data karena tidak ada aktivitas selama 15 menit.");
                     prosesLogout();
                 }, WAKTU_LOGOUT_OTOMATIS);
             }
         }
 
-        // Mendaftarkan event deteksi gerakan user untuk me-reset timer inaktivitas
-        window.onload = resetTimerInaktivitas;
+        // Daftarkan pemantau pergerakan user
         window.onmousemove = resetTimerInaktivitas;
         window.onmousedown = resetTimerInaktivitas;
         window.onclick = resetTimerInaktivitas;
@@ -527,6 +591,9 @@
             if (inputHash === savedHash) {
                 SESI_ROLE_AKTIF = role;
                 
+                // Amankan sesi di sessionStorage agar kebal refresh halaman
+                sessionStorage.setItem('sesi_user_role', role);
+                
                 document.getElementById('panelLogin').classList.add('hidden');
                 document.getElementById('kontenAplikasi').classList.remove('hidden');
                 
@@ -545,7 +612,7 @@
                 }
                 
                 document.getElementById('loginPassword').value = "";
-                resetTimerInaktivitas(); // Mulai hitung mundur aktivitas
+                resetTimerInaktivitas();
             } else {
                 alert("❌ Password Salah! Autentikasi untuk akses " + role + " ditolak.");
             }
@@ -553,6 +620,7 @@
 
         function prosesLogout() {
             SESI_ROLE_AKTIF = "";
+            sessionStorage.removeItem('sesi_user_role'); // Hancurkan token sesi
             clearTimeout(timerInaktivitas);
             document.getElementById('kontenAplikasi').classList.add('hidden');
             document.getElementById('panelLogin').classList.remove('hidden');
@@ -588,24 +656,17 @@
         }
 
         /**
-         * COUPLING ENGINE: OTOMATIS SIMPAN DATABASE LALU PRINT CETAK & RESET DATA
+         * PILIHAN AKSES 1: SEPARATE SIMPAN MURNI TANPA PRINTING AUTOMATION
          */
-        function prosesSimpanDanCetak() {
+        function eksekusiSimpanMurni() {
             if (simpanKeDatabase()) {
-                setTimeout(function() {
-                    window.print();
-                    // Alur Pasca Cetak: Konfirmasi kembali ke Home & Kosongkan field
-                    setTimeout(function() {
-                        if (confirm("Nota Berhasil Dicetak.\n\nApakah Anda ingin mengosongkan halaman formulir untuk memulai transaksi pengecekan baru?")) {
-                            kosongkanFormulirInspeksi();
-                        }
-                    }, 1000);
-                }, 500);
+                alert("💾 Sukses! Data rekam taksiran unit berhasil masuk ke database lokal.\n\nHalaman akan dikosongkan secara otomatis.");
+                kosongkanFormulirInspeksi();
             }
         }
 
         /**
-         * FUNGSI RESET: Membersihkan seluruh kolom isian kembali ke kondisi semula (Home Reset)
+         * FUNGSI RESET FORM KEMBALI BERSIH (Home Reset)
          */
         function kosongkanFormulirInspeksi() {
             document.getElementById('namaKonsumen').value = "";
@@ -618,16 +679,14 @@
             document.getElementById('hargaDasarTeks').value = "";
             document.getElementById('catatanKelengkapan').value = "";
             
-            // Uncheck semua checkbox tabel evaluasi
             let checkboxes = document.querySelectorAll('.minus-item');
             checkboxes.forEach(cb => cb.checked = false);
             
-            // Kembalikan teks output harga ke awal
             hitungTaksiran();
         }
 
         /**
-         * ARSITEKTUR TERPISAH DATABASE (Tabel Terisolasi: db_riwayat_inspeksi)
+         * ARSITEKTUR TERPISAH DATABASE (db_riwayat_inspeksi)
          */
         function simpanKeDatabase() {
             const payloadData = {
@@ -652,7 +711,6 @@
             }
 
             try {
-                // Memakai nama KEY khusus database terpisah untuk data arsip riwayat transaksi
                 let currentDB = JSON.parse(localStorage.getItem('db_riwayat_inspeksi')) || [];
                 currentDB.push(payloadData);
                 localStorage.setItem('db_riwayat_inspeksi', JSON.stringify(currentDB));
@@ -842,6 +900,12 @@
                 style: 'currency', currency: 'IDR', maximumFractionDigits: 0
             }).format(hargaAkhir);
         }
+
+        // Panggil pengetesan sesi aktif setiap kali file index HTML selesai di-load browser
+        window.onload = function() {
+            inisialisasiSandiDefault();
+            cekSesiBrowserAktif();
+        };
     </script>
 </body>
 </html>
